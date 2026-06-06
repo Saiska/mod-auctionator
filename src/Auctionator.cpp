@@ -44,7 +44,23 @@ void Auctionator::CreateAuction(AuctionatorItem newItem)
     // ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
 
 
-    Player player(session);
+    std::string accountName = "Auctionator";
+    WorldSession session(
+        config->characterId,
+        std::move(accountName),
+        0,
+        nullptr,
+        SEC_GAMEMASTER,
+        sWorld->getIntConfig(CONFIG_EXPANSION),
+        0,
+        LOCALE_enUS,
+        0,
+        false,
+        false,
+        0
+    );
+
+    Player player(&session);
     player.Initialize(config->characterGuid);
     ObjectAccessor::AddObject(&player);
     uint32 houseId = newItem.houseId;
@@ -162,8 +178,6 @@ AuctionHouseObject *Auctionator::GetAuctionHouse(uint32 houseId) {
 
 void Auctionator::Initialize()
 {
-    std::string accountName = "Auctionator";
-
     HordeAh = sAuctionMgr->GetAuctionsMapByHouseId(AuctionHouseId::Horde);
     HordeAhEntry = sAuctionHouseStore.LookupEntry((uint32)AuctionHouseId::Horde);
 
@@ -172,23 +186,6 @@ void Auctionator::Initialize()
 
     NeutralAh = sAuctionMgr->GetAuctionsMapByHouseId(AuctionHouseId::Neutral);
     NeutralAhEntry = sAuctionHouseStore.LookupEntry((uint32)AuctionHouseId::Neutral);
-
-    WorldSession _session(
-        config->characterId,
-        std::move(accountName),
-        0,
-        nullptr,
-        SEC_GAMEMASTER,
-        sWorld->getIntConfig(CONFIG_EXPANSION),
-        0,
-        LOCALE_enUS,
-        0,
-        false,
-        false,
-        0
-    );
-
-    session = &_session;
 }
 
 void Auctionator::InitializeConfig(ConfigMgr* configMgr)

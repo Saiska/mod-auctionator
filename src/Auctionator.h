@@ -42,7 +42,6 @@ class Auctionator : public AuctionatorBase
         AuctionHouseEntry const* HordeAhEntry;
         AuctionHouseEntry const* AllianceAhEntry;
         AuctionHouseEntry const* NeutralAhEntry;
-        WorldSession *session;
         AuctionatorEvents events;
 
     public:
