@@ -16,12 +16,13 @@
 
 Auctionator.Enabled = 1
 
-# the top level account id
-# this is not actually used methinks
-Auctionator.CharacterId = 2
+# Account id that owns seeded auctions. IS used (passed as the WorldSession account).
+# Must be a real account; pair it with CharacterGuid below. Dedicated owner: 4000000.
+Auctionator.CharacterId = 4000000
 
-# the character id
-Auctionator.CharacterGuid = 2
+# Character guid that owns seeded auctions. Must exist and belong to CharacterId above.
+# Dedicated DB-only owner created by custom/ auto-apply SQL: guid 4000000.
+Auctionator.CharacterGuid = 4000000
 
 ########################################
 # Seller configuration
