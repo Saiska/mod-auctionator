@@ -68,6 +68,13 @@ void Auctionator::CreateAuction(AuctionatorItem newItem)
     logDebug("Creating Auction for item: " + std::to_string(newItem.itemId));
     // Create the item (and add it to the update queue for the player ")
     Item* item = Item::CreateItem(newItem.itemId, 1, &player);
+    if (!item)
+    {
+        logDebug("CreateItem returned null for item "
+            + std::to_string(newItem.itemId) + " - skipping");
+        ObjectAccessor::RemoveObject(&player);
+        return;
+    }
 
     logTrace("adding item to player queue");
     item->AddToUpdateQueueOf(&player);
