@@ -271,6 +271,27 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->bidderMultipliers.legendary
         = configMgr->GetOption<float>("Auctionator.Multipliers.Bidder.Legendary", 10.0f);
 
+    // Safety: the seller owns auctions as (characterId, characterGuid). If that owner does not
+    // exist / is inconsistent, the seller would crash at runtime. Validate once and, if invalid,
+    // force the sellers off instead of crashing.
+    if (config->allianceSeller.enabled || config->hordeSeller.enabled || config->neutralSeller.enabled)
+    {
+        QueryResult ownerCheck = CharacterDatabase.Query(
+            "SELECT account FROM characters WHERE guid = {}", config->characterGuid);
+
+        bool ownerOk = ownerCheck && ownerCheck->Fetch()[0].Get<uint32>() == config->characterId;
+        if (!ownerOk)
+        {
+            logError("Auctionator seller owner invalid (CharacterGuid="
+                + std::to_string(config->characterGuid) + " / CharacterId="
+                + std::to_string(config->characterId)
+                + " not found or account mismatch). Disabling all sellers to avoid a crash.");
+            config->allianceSeller.enabled = 0;
+            config->hordeSeller.enabled = 0;
+            config->neutralSeller.enabled = 0;
+        }
+    }
+
     logInfo("Auctionator config initialized");
 }
 
