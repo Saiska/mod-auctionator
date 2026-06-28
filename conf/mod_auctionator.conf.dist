@@ -96,6 +96,46 @@ Auctionator.Seller.RandomizeStackSize = 1
 Auctionator.Seller.BidStartModifier = .3
 
 ########################################
+# Target-share seller (per-class AH mix)
+#
+# When enabled, the seller biases the auction-house item mix toward the
+# per-class weights below instead of mirroring the raw item-DB distribution.
+# Each run it picks a class in proportion to its weight, then a random
+# eligible item within that class.
+#
+# 1 - Enabled (weighted by class)
+# 0 - Disabled (legacy: uniform shuffle over all eligible items)
+########################################
+Auctionator.Seller.TargetShares.Enabled = 1
+
+########################################
+# Per-class relative weights. Values need NOT sum to 100 - they are
+# normalized internally. A weight of 0 removes that class from the AH.
+#
+# Reachable ceiling for a class is bounded by:
+#     eligible_entries * max_count / MaxAuctions
+# (e.g. Trade Goods ~733*3/5000 = ~44%, well above the 25 target).
+# A weight above a class's ceiling just saturates that class; the leftover
+# budget flows to the others that run.
+#
+# Class ids: 0 Consumable, 1 Container, 2 Weapon, 3 Gem, 4 Armor,
+#            5 Reagent, 6 Projectile, 7 Trade Goods, 9 Recipe,
+#            12 Quest, 15 Misc, 16 Glyph
+########################################
+Auctionator.Seller.TargetShare.TradeGoods = 25
+Auctionator.Seller.TargetShare.Armor      = 18
+Auctionator.Seller.TargetShare.Consumable = 16
+Auctionator.Seller.TargetShare.Weapon     = 12
+Auctionator.Seller.TargetShare.Recipe     = 8
+Auctionator.Seller.TargetShare.Gem        = 6
+Auctionator.Seller.TargetShare.Glyph      = 5
+Auctionator.Seller.TargetShare.Container  = 5
+Auctionator.Seller.TargetShare.Projectile = 3
+Auctionator.Seller.TargetShare.Reagent    = 2
+Auctionator.Seller.TargetShare.Quest      = 0
+Auctionator.Seller.TargetShare.Misc       = 0
+
+########################################
 # Allows the bidder to bid on their own auctions.
 # This is useful for testing changes and would also
 # get you more turnover in you auctions.

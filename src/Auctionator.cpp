@@ -228,6 +228,27 @@ void Auctionator::InitializeConfig(ConfigMgr* configMgr)
     config->sellerConfig.randomizeStackSize = configMgr->GetOption<uint32>("Auctionator.Seller.RandomizeStackSize", 1);
     config->sellerConfig.bidStartModifier = configMgr->GetOption<float>("Auctionator.Seller.BidStartModifier", 1.0f);
 
+    // Target-share seller: per-class selection weights
+    config->sellerConfig.targetSharesEnabled =
+        configMgr->GetOption<bool>("Auctionator.Seller.TargetShares.Enabled", true);
+
+    config->sellerConfig.classWeight = {}; // zero all classes first
+    static const std::pair<char const*, uint32> kClassKeys[] = {
+        { "Consumable",  0 },  { "Container",  1 },  { "Weapon",     2 },
+        { "Gem",         3 },  { "Armor",      4 },  { "Reagent",    5 },
+        { "Projectile",  6 },  { "TradeGoods", 7 },  { "Recipe",     9 },
+        { "Quest",      12 },  { "Misc",      15 },  { "Glyph",     16 },
+    };
+    for (auto const& [name, classId] : kClassKeys)
+    {
+        std::string key = "Auctionator.Seller.TargetShare." + std::string(name);
+        config->sellerConfig.classWeight[classId] =
+            configMgr->GetOption<float>(key, 0.0f);
+    }
+
+    logInfo("Target shares enabled: "
+        + std::to_string(config->sellerConfig.targetSharesEnabled));
+
     // Load our bidder configurations
     config->allianceBidder.enabled = configMgr->GetOption<uint32>("Auctionator.AllianceBidder.Enabled", 0);
     config->allianceBidder.cycleMinutes = configMgr->GetOption<uint32>("Auctionator.AllianceBidder.CycleMinutes", 30);

@@ -3,6 +3,7 @@
 #define AUCTIONATOR_CONFIG_H
 
 #include "Common.h"
+#include <array>
 
 struct AuctionatorHouseConfig
 {
@@ -38,6 +39,10 @@ struct AuctionatorSellerConfig
         uint32 auctionsPerRun = 100;
         uint32 randomizeStackSize = 1;
         float bidStartModifier = .3;
+        bool targetSharesEnabled = true;
+        // Per-class relative selection weights, indexed by item class id
+        // (core ITEM_CLASS_* range 0..16). 0 = class excluded from the AH.
+        std::array<float, 17> classWeight = {};
 };
 
 class AuctionatorConfig
