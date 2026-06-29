@@ -113,7 +113,22 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
 
     uint32 count = 0;
 
-    if (!nator->config->sellerConfig.targetSharesEnabled)
+    bool useTargetShare = nator->config->sellerConfig.targetSharesEnabled;
+    if (useTargetShare)
+    {
+        float totalWeight = 0.0f;
+        for (float w : nator->config->sellerConfig.classWeight)
+            totalWeight += w;
+        if (totalWeight <= 0.0f)
+        {
+            logError("Target shares enabled but all class weights are 0 - "
+                "falling back to legacy uniform shuffle (check the "
+                "Auctionator.Seller.TargetShare.* conf keys).");
+            useTargetShare = false;
+        }
+    }
+
+    if (!useTargetShare)
     {
         // ---- Legacy path: uniform shuffle over all eligible items ----
         std::vector<CachedItem> shuffled = cachedItems;
@@ -133,7 +148,7 @@ void AuctionatorSeller::LetsGetToIt(uint32 maxCount, uint32 houseId)
     }
     else
     {
-        // ---- Target-share path: weighted class -> uniform entry ----
+        // ---- Target-share path ----
         count = SellByTargetShare(classBuckets, currentCounts, maxCount, houseId);
     }
 
@@ -220,7 +235,8 @@ uint32 AuctionatorSeller::SellByTargetShare(
     uint32 count = 0;
     std::array<uint32, 17> placedByClass = {};
 
-    // Loop until budget spent or no active class can place.
+    // Cost stays O(items-placed) because MaxAuctions << sum of bucket sizes,
+    // so buckets are never near-saturated and the 32-try inner loop rarely misses.
     while (count < maxCount && !activeClass.empty())
     {
         // Weighted pick of an active class index.
